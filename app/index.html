@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+	<h1>Cronômetro</h1>
+    <div id="chronoExample">
+        <h2 class="values">00:00:00</h2>
+        <div class="buttons">
+            <button class="startButton">Iniciar</button>
+            <button class="pauseButton" >Pausar</button>
+            <button class="stopButton">Parar</button>
+            <button class="resetButton">Reiniciar</button>
+        </div>
+    </div>
+    <script>
+        const electron = require('electron');
+        const { Timer } = require('easytimer.js');
+        const timer = new Timer();
+        const { ipcRenderer } = electron;
+        let currentTime;
+        let target25 = new Timer();
+
+        document.querySelector('#chronoExample .startButton').addEventListener('click', 
+            function () {
+                timer.start();
+                target25.start({ precision: 'seconds', target: { seconds: 25 } });
+            }
+        );
+        document.querySelector('#chronoExample .pauseButton').addEventListener('click',
+            function () {
+                timer.pause();
+                target25.pause();
+            }
+        );
+        document.querySelector('#chronoExample .stopButton').addEventListener('click',
+            function () {
+                timer.stop();
+                target25.stop();
+            }
+        );
+        document.querySelector('#chronoExample .resetButton').addEventListener('click',
+            function () {
+                timer.reset();
+                target25.reset();
+            }
+        );
+
+        function updateTime() {
+            currentTime = timer.getTimeValues().toString();
+            document.querySelector('#chronoExample .values').innerHTML = currentTime;
+            ipcRenderer.send('timeUpdate', currentTime);
+        }
+
+        timer.addEventListener('secondsUpdated', updateTime);
+        timer.addEventListener('started', updateTime);
+        timer.addEventListener('reset', updateTime);
+
+        target25.addEventListener('targetAchieved', function(ev) {
+            const myNotification = new Notification('Cronômetro', { 
+                body: '25 segundos'
+            });
+            target25.start({ precision: 'seconds', target: { seconds: 25 } });
+        });
+	</script>
+</body>

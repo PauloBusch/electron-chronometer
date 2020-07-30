@@ -1,0 +1,19 @@
+{
+  "name": "terap",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "electron": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "easytimer.js": "^4.3.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "windows-shortcut-maker": "0.0.6"
+  },
+  "devDependencies": {
+    "electron": "^9.1.1"
+  }
+}
