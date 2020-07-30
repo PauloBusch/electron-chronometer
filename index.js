@@ -1,12 +1,16 @@
 const electron = require('electron');
 const { ChronoTray } = require('./app/chronotray');
 const ws = require('windows-shortcut-maker');
-const { app, BrowserWindow, ipcMain } = electron;
+const { app, BrowserWindow, ipcMain, autoUpdater, dialog } = electron;
+
+const isDev = require('electron-is-dev');
+const server = 'http://download.localhost:4000';
+const feed = `${server}/update/${process.platform}/${app.getVersion()}`;
 
 let mainWindow;
 let tray;
 
-// =================================================
+// ======================= Util by install app =======================
 // handling squirrel events
 if (require('electron-squirrel-startup')) return;
  
@@ -85,8 +89,33 @@ app.on('ready', function() {
         ws.makeSync({ filepath: process.execPath });
         app.setAppUserModelId(process.execPath);
     }
+    if (!isDev) {
+      autoUpdater.setFeedURL(feed);
+      setInterval(() => {
+        autoUpdater.checkForUpdates();
+      }, 60000);
+    }
 });
 
 ipcMain.on('timeUpdate', function(event, time) {
     tray.setToolTip(time);
+});
+
+autoUpdater.on('update-downloaded', (ev, releaseNotes, releaseName) => {
+  const dialogOptions = {
+    type: 'info',
+    buttons: ['Reiniciar', 'Mais Tarde'],
+    title: 'Atualizações da Aplicação',
+    message: `Versão: ${releaseName}, Nota: ${releaseNotes}`,
+    detail: 'Uma nova versão foi recebida. Reinicie a aplicação para aplicar a atualização.'
+  };
+
+  dialog.showErrorBox(dialogOptions, rs => {
+    if (rs === 0) autoUpdater.quitAndInstall();
+  });
+});
+
+autoUpdater.on('error', msg => {
+  console.error('Houve um problema nao atualizar a aplicação');
+  console.error(msg);
 });

@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "easytimer.js": "^4.3.0",
+    "electron-is-dev": "^1.2.0",
     "electron-squirrel-startup": "^1.0.0",
     "windows-shortcut-maker": "0.0.6"
   },
